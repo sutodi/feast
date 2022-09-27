@@ -15,6 +15,9 @@ from feast import proto_json
 from feast.data_source import PushMode
 from feast.protos.feast.serving.ServingService_pb2 import GetOnlineFeaturesRequest
 
+if os.environ.get('ENABLE_DATADOG') == 'true':
+    from ddtrace import patch
+    patch(fastapi=True)
 
 # TODO: deprecate this in favor of push features
 class WriteToFeatureStoreRequest(BaseModel):
