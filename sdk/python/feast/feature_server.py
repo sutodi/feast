@@ -1,7 +1,7 @@
 import json
 import traceback
 import warnings
-
+import time
 import pandas as pd
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request, Response, status
@@ -45,10 +45,11 @@ def get_app(store: "feast.FeatureStore"):
     @app.post("/get-online-features")
     async def get_online_features(body=Depends(get_body)):
         try:
+            s = time.time()
             # Validate and parse the request data into GetOnlineFeaturesRequest Protobuf object
             request_proto = GetOnlineFeaturesRequest()
             Parse(body, request_proto)
-
+            t1 = time.time()
             # Initialize parameters for FeatureStore.get_online_features(...) call
             if request_proto.HasField("feature_service"):
                 features = store.get_feature_service(
@@ -58,7 +59,7 @@ def get_app(store: "feast.FeatureStore"):
                 features = list(request_proto.features.val)
 
             full_feature_names = request_proto.full_feature_names
-
+            t2 = time.time()
             batch_sizes = [len(v.val) for v in request_proto.entities.values()]
             num_entities = batch_sizes[0]
             if any(batch_size != num_entities for batch_size in batch_sizes):
@@ -70,11 +71,14 @@ def get_app(store: "feast.FeatureStore"):
                 full_feature_names=full_feature_names,
                 native_entity_values=False,
             ).proto
-
+            t3 = time.time()
             # Convert the Protobuf object to JSON and return it
-            return MessageToDict(  # type: ignore
+            jsonOutput = MessageToDict(  # type: ignore
                 response_proto, preserving_proto_field_name=True, float_precision=18
             )
+            t4 = time.time()
+            print(t1-s, t2-t1, t3-t2,t4-t3)
+            return jsonOutput
         except Exception as e:
             # Print the original exception on the server side
             logger.exception(traceback.format_exc())
