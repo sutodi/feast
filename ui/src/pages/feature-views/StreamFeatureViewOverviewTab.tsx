@@ -14,13 +14,12 @@ import { useParams } from "react-router-dom";
 import { EntityRelation } from "../../parsers/parseEntityRelationships";
 import { FEAST_FCO_TYPES } from "../../parsers/types";
 import useLoadRelationshipData from "../../queries/useLoadRelationshipsData";
-import FeatureViewProjectionDisplayPanel from "./components/FeatureViewProjectionDisplayPanel";
-import RequestDataDisplayPanel from "./components/RequestDataDisplayPanel";
 import ConsumingFeatureServicesList from "./ConsumingFeatureServicesList";
+import EuiCustomLink from "../../components/EuiCustomLink";
 import { feast } from "../../protos";
 
-interface OnDemandFeatureViewOverviewTabProps {
-  data: feast.core.IOnDemandFeatureView;
+interface StreamFeatureViewOverviewTabProps {
+  data: feast.core.IStreamFeatureView;
 }
 
 const whereFSconsumesThisFv = (fvName: string) => {
@@ -32,16 +31,16 @@ const whereFSconsumesThisFv = (fvName: string) => {
   };
 };
 
-const OnDemandFeatureViewOverviewTab = ({
+const StreamFeatureViewOverviewTab = ({
   data,
-}: OnDemandFeatureViewOverviewTabProps) => {
-  const inputs = Object.entries(data?.spec?.sources!);
+}: StreamFeatureViewOverviewTabProps) => {
+  const inputs = Object.entries([data.spec?.streamSource]);
   const { projectName } = useParams();
 
   const relationshipQuery = useLoadRelationshipData();
   const fsNames = relationshipQuery.data
     ? relationshipQuery.data
-        .filter(whereFSconsumesThisFv(data?.spec?.name!))
+        .filter(whereFSconsumesThisFv(data.spec?.name!))
         .map((fs) => {
           return fs.target.name;
         })
@@ -57,7 +56,7 @@ const OnDemandFeatureViewOverviewTab = ({
             </EuiTitle>
             <EuiHorizontalRule margin="xs" />
             <EuiCodeBlock language="py" fontSize="m" paddingSize="m">
-              {data?.spec?.userDefinedFunction?.bodyText}
+              {data.spec?.userDefinedFunction?.body}
             </EuiCodeBlock>
           </EuiPanel>
         </EuiFlexItem>
@@ -66,13 +65,13 @@ const OnDemandFeatureViewOverviewTab = ({
         <EuiFlexItem>
           <EuiPanel hasBorder={true}>
             <EuiTitle size="xs">
-              <h3>Features ({data?.spec?.features!.length})</h3>
+              <h3>Features ({data.spec?.features?.length})</h3>
             </EuiTitle>
             <EuiHorizontalRule margin="xs" />
-            {projectName && data?.spec?.features ? (
+            {projectName && data.spec?.features ? (
               <FeaturesListDisplay
                 projectName={projectName}
-                featureViewName={data?.spec?.name!}
+                featureViewName={data.spec.name!}
                 features={data.spec.features}
                 link={false}
               />
@@ -89,37 +88,26 @@ const OnDemandFeatureViewOverviewTab = ({
             <EuiHorizontalRule margin="xs" />
             <EuiFlexGroup direction="column">
               {inputs.map(([key, inputGroup]) => {
-                if (
-                  (inputGroup as feast.core.IOnDemandSource).requestDataSource
-                ) {
-                  return (
-                    <EuiFlexItem key={key}>
-                      <RequestDataDisplayPanel
-                        {...(inputGroup as feast.core.IOnDemandSource)}
-                      />
-                    </EuiFlexItem>
-                  );
-                }
-
-                if (
-                  (inputGroup as feast.core.IOnDemandSource)
-                    .featureViewProjection
-                ) {
-                  return (
-                    <EuiFlexItem key={key}>
-                      <FeatureViewProjectionDisplayPanel
-                        {...(inputGroup.featureViewProjection as feast.core.IFeatureViewProjection)}
-                      />
-                    </EuiFlexItem>
-                  );
-                }
 
                 return (
-                  <EuiFlexItem key={key}>
-                    <EuiCodeBlock language="json" fontSize="m" paddingSize="m">
-                      {JSON.stringify(inputGroup, null, 2)}
-                    </EuiCodeBlock>
-                  </EuiFlexItem>
+                  <EuiPanel hasBorder={true} key={key}>
+                    <EuiText size="xs">
+                      <span>Stream Source</span>
+                    </EuiText>
+                    <EuiTitle size="s">
+                      <EuiCustomLink
+                        href={`/p/${projectName}/data-source/${inputGroup?.name}`}
+                        to={`/p/${projectName}/data-source/${inputGroup?.name}`}
+                      >
+                        {inputGroup?.name}
+                      </EuiCustomLink>
+                    </EuiTitle>
+                    <EuiFlexItem key={key}>
+                      <EuiCodeBlock language="json" fontSize="m" paddingSize="m">
+                        {JSON.stringify(inputGroup, null, 2)}
+                      </EuiCodeBlock>
+                    </EuiFlexItem>
+                  </EuiPanel>
                 );
               })}
             </EuiFlexGroup>
@@ -142,4 +130,4 @@ const OnDemandFeatureViewOverviewTab = ({
   );
 };
 
-export default OnDemandFeatureViewOverviewTab;
+export default StreamFeatureViewOverviewTab;

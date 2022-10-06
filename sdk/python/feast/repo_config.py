@@ -48,6 +48,7 @@ ONLINE_STORE_CLASS_FOR_TYPE = {
     "redis": "feast.infra.online_stores.redis.RedisOnlineStore",
     "dynamodb": "feast.infra.online_stores.dynamodb.DynamoDBOnlineStore",
     "snowflake.online": "feast.infra.online_stores.snowflake.SnowflakeOnlineStore",
+    "bigtable": "feast.infra.online_stores.bigtable.BigtableOnlineStore",
     "postgres": "feast.infra.online_stores.contrib.postgres.PostgreSQLOnlineStore",
     "hbase": "feast.infra.online_stores.contrib.hbase_online_store.hbase.HbaseOnlineStore",
     "cassandra": "feast.infra.online_stores.contrib.cassandra_online_store.cassandra_online_store.CassandraOnlineStore",
@@ -166,6 +167,9 @@ class RepoConfig(FeastBaseModel):
     v2 fixes this error, but v1 is kept around to ensure backwards compatibility - specifically the ability to read
     feature values for entities that have already been written into the online store.
     """
+
+    coerce_tz_aware: Optional[bool] = True
+    """ If True, coerces entity_df timestamp columns to be timezone aware (to UTC by default). """
 
     def __init__(self, **data: Any):
         super().__init__(**data)

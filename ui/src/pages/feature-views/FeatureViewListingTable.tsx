@@ -35,7 +35,7 @@ const FeatureViewListingTable = ({
             href={`/p/${projectName}/feature-view/${name}`}
             to={`/p/${projectName}/feature-view/${name}`}
           >
-            {name} {item.type === "ondemand" && <EuiBadge>ondemand</EuiBadge>}
+            {name} {(item.type === "ondemand" && <EuiBadge>ondemand</EuiBadge>) || (item.type === "stream" && <EuiBadge>stream</EuiBadge>)}
           </EuiCustomLink>
         );
       },
@@ -58,7 +58,7 @@ const FeatureViewListingTable = ({
         let tag = <span>n/a</span>;
 
         if (item.type === "regular") {
-          const value = item.object.spec.tags
+          const value = item?.object?.spec!.tags
             ? item.object.spec.tags[key]
             : undefined;
 

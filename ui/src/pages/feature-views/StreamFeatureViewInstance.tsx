@@ -9,24 +9,24 @@ import {
 
 import { FeatureViewIcon32 } from "../../graphics/FeatureViewIcon";
 import { useMatchExact } from "../../hooks/useMatchSubpath";
-import OnDemandFeatureViewOverviewTab from "./OnDemandFeatureViewOverviewTab";
+import StreamFeatureViewOverviewTab from "./StreamFeatureViewOverviewTab";
 
 import {
-  useOnDemandFeatureViewCustomTabs,
-  useOnDemandFeatureViewCustomTabRoutes,
+  useStreamFeatureViewCustomTabs,
+  useStreamFeatureViewCustomTabRoutes,
 } from "../../custom-tabs/TabsRegistryContext";
 import { feast } from "../../protos";
 
-interface OnDemandFeatureInstanceProps {
-  data: feast.core.IOnDemandFeatureView;
+interface StreamFeatureInstanceProps {
+  data: feast.core.IStreamFeatureView;
 }
 
-const OnDemandFeatureInstance = ({ data }: OnDemandFeatureInstanceProps) => {
+const StreamFeatureInstance = ({ data }: StreamFeatureInstanceProps) => {
   const navigate = useNavigate();
   let { featureViewName } = useParams();
 
-  const { customNavigationTabs } = useOnDemandFeatureViewCustomTabs(navigate);
-  const CustomTabRoutes = useOnDemandFeatureViewCustomTabRoutes();
+  const { customNavigationTabs } = useStreamFeatureViewCustomTabs(navigate);
+  const CustomTabRoutes = useStreamFeatureViewCustomTabRoutes();
 
   return (
     <React.Fragment>
@@ -56,7 +56,7 @@ const OnDemandFeatureInstance = ({ data }: OnDemandFeatureInstanceProps) => {
           <Routes>
             <Route
               path="/"
-              element={<OnDemandFeatureViewOverviewTab data={data} />}
+              element={<StreamFeatureViewOverviewTab data={data} />}
             />
             {CustomTabRoutes}
           </Routes>
@@ -66,4 +66,4 @@ const OnDemandFeatureInstance = ({ data }: OnDemandFeatureInstanceProps) => {
   );
 };
 
-export default OnDemandFeatureInstance;
+export default StreamFeatureInstance;

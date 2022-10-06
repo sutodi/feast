@@ -13,6 +13,7 @@ import os
 import feast
 from feast import proto_json
 from feast.data_source import PushMode
+from feast.errors import PushSourceNotFoundException
 from feast.protos.feast.serving.ServingService_pb2 import GetOnlineFeaturesRequest
 
 if os.environ.get('ENABLE_DATADOG') == 'true':
@@ -102,6 +103,11 @@ def get_app(store: "feast.FeatureStore"):
                 allow_registry_cache=request.allow_registry_cache,
                 to=to,
             )
+        except PushSourceNotFoundException as e:
+            # Print the original exception on the server side
+            logger.exception(traceback.format_exc())
+            # Raise HTTPException to return the error message to the client
+            raise HTTPException(status_code=422, detail=str(e))
         except Exception as e:
             # Print the original exception on the server side
             logger.exception(traceback.format_exc())
