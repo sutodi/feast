@@ -43,7 +43,7 @@ def get_app(store: "feast.FeatureStore"):
         return await request.body()
 
     @app.post("/get-online-features")
-    async def get_online_features(body=Depends(get_body)):
+    def get_online_features(body=Depends(get_body)):
         try:
             # Validate and parse the request data into GetOnlineFeaturesRequest Protobuf object
             request_proto = GetOnlineFeaturesRequest()
